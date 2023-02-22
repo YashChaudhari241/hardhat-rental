@@ -8,7 +8,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     const { deployer } = await getNamedAccounts()
     const chainId = network.config.chainId
     log("----------------------------------------------------")
-    log("Deploying FundMe and waiting for confirmations...")
+    log("Deploying HousingRental and waiting for confirmations...")
     const housingRental = await deploy("HousingRental", {
         from: deployer,
         args: [deployer],

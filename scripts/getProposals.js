@@ -2,16 +2,10 @@ const { ethers, getNamedAccounts } = require("hardhat")
 
 async function main() {
     const { deployer } = await getNamedAccounts()
-    console.log(deployer)
     const housingRental = await ethers.getContract("HousingRental", deployer)
     console.log(`Got contract Rental at ${housingRental.address}`)
-    const transactionResponse = await housingRental.createListing({
-        index: 0,
-        metadataID: "238",
-        metadataHash: "has456456h",
-        landlord: deployer,
-    })
-    await transactionResponse.wait(1)
+    const transactionResponse = await housingRental.getProposals("0")
+    console.log(transactionResponse)
     console.log("done!")
 }
 

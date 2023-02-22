@@ -1,0 +1,12 @@
+yarn hardhat run scripts/createListing.js --network localhost
+yarn hardhat run scripts/createProposal.js --network localhost
+yarn hardhat run scripts/acceptProposal.js --network localhost
+yarn hardhat run scripts/tenantSignAgreement.js --network localhost
+yarn hardhat run scripts/resolverSignAgreement.js --network localhost
+yarn hardhat run scripts/startAgreement.js --network localhost
+yarn hardhat run scripts/payRent.js --network localhost
+yarn hardhat run scripts/raiseTenantDispute.js --network localhost
+yarn hardhat run scripts/payRent.js --network localhost
+yarn hardhat run scripts/getPaymentData.js --network localhost
+yarn hardhat run scripts/getDispute.js --network localhost
+yarn hardhat run scripts/resolveDispute.js --network localhost

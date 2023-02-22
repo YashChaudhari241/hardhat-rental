@@ -10,6 +10,7 @@ require("dotenv").config()
 
 module.exports = {
     solidity: "0.8.17",
+    defaultNetwork: "hardhat",
     networks: {
         hardhat: {
             chainId: 31337,
@@ -23,6 +24,15 @@ module.exports = {
         deployer: {
             default: 0, // here this will by default take the first account as deployer
             1: 0, // similarly on mainnet it will take the first account as deployer. Note though that depending on how hardhat network are configured, the account 0 on one network can be different than on another
+        },
+        tenant: {
+            default: 2,
+        },
+        middlemanAcc: {
+            default: 3,
+        },
+        landlord: {
+            default: 4,
         },
     },
     mocha: {
