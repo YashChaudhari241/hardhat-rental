@@ -6,7 +6,7 @@ contract HousingRental {
     struct Listing {
         uint index;
         address landlord;
-        uint16 metadataID;
+        string metadataID;
         string metadataHash;
     }
 
@@ -74,13 +74,13 @@ contract HousingRental {
         return i_owner;
     }
 
-    function createListing(Listing memory newListing) public returns (string memory) {
+    function createListing(Listing memory newListing) public returns (uint) {
         uint index = s_listings.length;
         newListing.index = uint(index);
         newListing.landlord = msg.sender;
         s_listings.push(newListing);
         emit ListingCreated(index, newListing, msg.sender);
-        return newListing.metadataHash;
+        return index;
     }
 
     function createProposal(uint index) external returns (uint) {
