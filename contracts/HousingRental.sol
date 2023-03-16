@@ -61,6 +61,7 @@ contract HousingRental {
     error Rental__UnexpectedFundTransfer();
     error Rental__OutOfRange();
     error Rental__NotReady();
+    error Rental__NotAvailable();
     error Rental__LowDeposit(uint reqdDeposit);
     Listing[] private s_listings;
 
@@ -74,13 +75,19 @@ contract HousingRental {
         return i_owner;
     }
 
-    function createListing(Listing memory newListing) public returns (uint) {
-        uint index = s_listings.length;
-        newListing.index = uint(index);
+    function get_Length() public view returns (uint) {
+        return s_listings.length;
+    }
+
+    function createListing(Listing memory newListing) public {
+        // if (s_listings[newListing.index].landlord == address(0)) {
+        //     revert Rental__NotAvailable();
+        // }
+        uint curLen = s_listings.length;
+        newListing.index = curLen;
         newListing.landlord = msg.sender;
         s_listings.push(newListing);
-        emit ListingCreated(index, newListing, msg.sender);
-        return index;
+        emit ListingCreated(curLen, newListing, msg.sender);
     }
 
     function createProposal(uint index) external returns (uint) {

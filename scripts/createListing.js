@@ -11,6 +11,7 @@ async function main() {
         metadataHash: "has456456h",
         landlord: deployer,
     })
+    console.log(transactionResponse)
     await transactionResponse.wait(1)
     console.log("done!")
 }
