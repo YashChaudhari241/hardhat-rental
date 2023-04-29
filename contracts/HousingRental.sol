@@ -10,6 +10,12 @@ contract HousingRental {
         string metadataHash;
     }
 
+    struct UserData{
+        Proposal[] proposals;
+        uint[] listingIndices;
+        uint[] activeRentIndices;
+    }
+
     enum RentalStatus {
         AWAITING_SIGNATURES,
         AWAITING_START_DATE,
@@ -43,6 +49,13 @@ contract HousingRental {
         uint8[] late;
     }
 
+    struct Proposal{
+        uint rentAmount;
+        uint8 months;
+        address sender;
+        uint listingIndex;
+    }
+
     struct Dispute {
         UserType raisedBy;
         uint amount;
@@ -52,12 +65,13 @@ contract HousingRental {
     mapping(uint => Dispute) disputeData;
     mapping(uint => Payment) paymentData;
     mapping(uint => RentDetails) rentData;
-    mapping(uint => address[]) proposals;
-
+    mapping(uint => Proposal[]) proposals;
+    mapping(address => UserData) userData;
     error Rental__InvalidSlice();
     error Rental__SenderNotLandlord();
     error Rental__SenderNotTenant();
     error Rental__Unauthorized();
+    error Rental__RentLowerThanProposal();
     error Rental__UnexpectedFundTransfer();
     error Rental__OutOfRange();
     error Rental__NotReady();
@@ -87,17 +101,24 @@ contract HousingRental {
         newListing.index = curLen;
         newListing.landlord = msg.sender;
         s_listings.push(newListing);
+        userData[msg.sender].listingIndices.push(curLen);
         emit ListingCreated(curLen, newListing, msg.sender);
     }
 
-    function createProposal(uint index) external returns (uint) {
-        proposals[index].push(msg.sender);
-        return proposals[index].length - 1;
+    function createProposal(Proposal memory newProposal) external returns (uint) {
+        newProposal.sender = msg.sender;
+        proposals[newProposal.listingIndex].push(newProposal);
+        userData[msg.sender].proposals.push(newProposal);
+        return proposals[newProposal.listingIndex].length - 1;
     }
 
-    function getProposals(uint index) external view returns (address[] memory) {
+    function getProposals(uint index) external view returns (Proposal[] memory) {
         return proposals[index];
     }
+
+    function getUserData() external view returns (UserData memory){
+        return userData[msg.sender];
+    } 
 
     function acceptProposal(
         uint listingIndex,
@@ -117,8 +138,11 @@ contract HousingRental {
         if (s_listings[listingIndex].landlord != msg.sender) {
             revert Rental__SenderNotLandlord();
         }
+        if(proposals[listingIndex][index - 1].rentAmount > rent){
+            revert Rental__RentLowerThanProposal();
+        }
         RentDetails memory newRent = RentDetails(
-            proposals[listingIndex][index - 1],
+            proposals[listingIndex][index - 1].sender,
             months,
             docID,
             docHash,
