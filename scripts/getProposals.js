@@ -4,7 +4,7 @@ async function main() {
     const { deployer } = await getNamedAccounts()
     const housingRental = await ethers.getContract("HousingRental", deployer)
     console.log(`Got contract Rental at ${housingRental.address}`)
-    const transactionResponse = await housingRental.getProposals("1")
+    const transactionResponse = await housingRental.getProposals("0")
     console.log(transactionResponse)
     console.log("done!")
 }

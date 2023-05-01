@@ -13,8 +13,14 @@ contract HousingRental {
     struct UserData{
         Proposal[] proposals;
         uint[] listingIndices;
-        uint[] activeRentIndices;
-        uint[] activeTenantIndices;
+        Shortrent[] activeRentIndices;
+        Shortrent[] activeTenantIndices;
+        Shortrent[] activeResolverIndices;
+    }
+
+    struct Shortrent{
+        uint listingIndex;
+        uint rent;
     }
 
     enum RentalStatus {
@@ -62,7 +68,7 @@ contract HousingRental {
         uint amount;
         uint heldAmount;
     }
-
+    mapping(string=> Listing[]) historicalData;
     mapping(uint => Dispute) disputeData;
     mapping(uint => Payment) paymentData;
     mapping(uint => RentDetails) rentData;
@@ -94,7 +100,7 @@ contract HousingRental {
         return s_listings.length;
     }
 
-    function createListing(Listing memory newListing) public {
+    function createListing(Listing memory newListing,string memory propertyID) public {
         // if (s_listings[newListing.index].landlord == address(0)) {
         //     revert Rental__NotAvailable();
         // }
@@ -102,6 +108,7 @@ contract HousingRental {
         newListing.index = curLen;
         newListing.landlord = msg.sender;
         s_listings.push(newListing);
+        historicalData[propertyID].push(newListing);
         userData[msg.sender].listingIndices.push(curLen);
         emit ListingCreated(curLen, newListing, msg.sender);
     }
@@ -156,8 +163,9 @@ contract HousingRental {
             landlordSign,
             RentalStatus.AWAITING_SIGNATURES
         );
-        userData[msg.sender].activeRentIndices.push(listingIndex);
-        userData[proposals[listingIndex][index].sender].activeTenantIndices.push(listingIndex);
+        userData[msg.sender].activeRentIndices.push(Shortrent(listingIndex,rent));
+        userData[proposals[listingIndex][index].sender].activeTenantIndices.push(Shortrent(listingIndex,rent));
+        userData[middleman].activeResolverIndices.push(Shortrent(listingIndex,rent));
         delete proposals[listingIndex];
         rentData[listingIndex] = newRent;
     }
@@ -177,8 +185,12 @@ contract HousingRental {
     function signAgreement(uint listingIndex, string memory senderSign) external payable {
         RentDetails memory tempData = rentData[listingIndex];
         if (tempData.tenant == msg.sender) {
+            if (bytes(tempData.resolverSign).length != 0) {
+                revert Rental__NotAvailable();
+            }
             if (msg.value > tempData.deposit) {
                 payable(msg.sender).transfer(msg.value - tempData.deposit);
+                rentData[listingIndex].tenantSign = senderSign;
             } else if (msg.value < tempData.deposit) {
                 revert Rental__LowDeposit(tempData.deposit);
             } else {
