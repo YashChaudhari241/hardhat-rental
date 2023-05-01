@@ -14,6 +14,7 @@ contract HousingRental {
         Proposal[] proposals;
         uint[] listingIndices;
         uint[] activeRentIndices;
+        uint[] activeTenantIndices;
     }
 
     enum RentalStatus {
@@ -155,6 +156,8 @@ contract HousingRental {
             landlordSign,
             RentalStatus.AWAITING_SIGNATURES
         );
+        userData[msg.sender].activeRentIndices.push(listingIndex);
+        userData[proposals[listingIndex][index - 1].sender].activeTenantIndices.push(listingIndex);
         delete proposals[listingIndex];
         rentData[listingIndex] = newRent;
     }
