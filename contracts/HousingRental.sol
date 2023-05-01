@@ -133,17 +133,17 @@ contract HousingRental {
         uint deposit,
         string memory landlordSign
     ) external {
-        if (index > proposals[listingIndex].length) {
+        if (index >= proposals[listingIndex].length) {
             revert Rental__OutOfRange();
         }
         if (s_listings[listingIndex].landlord != msg.sender) {
             revert Rental__SenderNotLandlord();
         }
-        if(proposals[listingIndex][index - 1].rentAmount > rent){
+        if(proposals[listingIndex][index].rentAmount > rent){
             revert Rental__RentLowerThanProposal();
         }
         RentDetails memory newRent = RentDetails(
-            proposals[listingIndex][index - 1].sender,
+            proposals[listingIndex][index].sender,
             months,
             docID,
             docHash,
@@ -157,7 +157,7 @@ contract HousingRental {
             RentalStatus.AWAITING_SIGNATURES
         );
         userData[msg.sender].activeRentIndices.push(listingIndex);
-        userData[proposals[listingIndex][index - 1].sender].activeTenantIndices.push(listingIndex);
+        userData[proposals[listingIndex][index].sender].activeTenantIndices.push(listingIndex);
         delete proposals[listingIndex];
         rentData[listingIndex] = newRent;
     }
