@@ -92,13 +92,6 @@ contract HousingRental {
         i_owner = owner;
     }
 
-    function getOwner() public view returns (address owner) {
-        return i_owner;
-    }
-
-    function get_Length() public view returns (uint) {
-        return s_listings.length;
-    }
 
     function createListing(Listing memory newListing,string memory propertyID) public {
         // if (s_listings[newListing.index].landlord == address(0)) {
@@ -124,6 +117,9 @@ contract HousingRental {
         return proposals[index];
     }
 
+// function getHistory(string memory id) external view returns (Listing[] memory) {
+//         return historicalData[id];
+//     }
     function getUserData() external view returns (UserData memory){
         return userData[msg.sender];
     } 

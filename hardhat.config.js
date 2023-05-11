@@ -7,7 +7,8 @@ require("hardhat-contract-sizer")
 require("dotenv").config()
 
 /** @type import('hardhat/config').HardhatUserConfig */
-
+const RPC_URL = process.env.RPC_URL
+const PRIVATE_KEY = process.env.PRIVATE_KEY
 module.exports = {
     solidity: "0.8.17",
     defaultNetwork: "hardhat",
@@ -15,6 +16,11 @@ module.exports = {
         hardhat: {
             chainId: 31337,
             // gasPrice: 130000000000,
+        },
+        sepolia: {
+            chainId: 11155111,
+            url: RPC_URL,
+            accounts: [PRIVATE_KEY],
         },
     },
     gasReporter: {
