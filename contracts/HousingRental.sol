@@ -10,7 +10,7 @@ contract HousingRental {
         string metadataHash;
     }
 
-    struct UserData{
+    struct UserData {
         Proposal[] proposals;
         uint[] listingIndices;
         Shortrent[] activeRentIndices;
@@ -18,7 +18,7 @@ contract HousingRental {
         Shortrent[] activeResolverIndices;
     }
 
-    struct Shortrent{
+    struct Shortrent {
         uint listingIndex;
         uint rent;
     }
@@ -56,7 +56,7 @@ contract HousingRental {
         uint8[] late;
     }
 
-    struct Proposal{
+    struct Proposal {
         uint rentAmount;
         uint8 months;
         address sender;
@@ -68,7 +68,7 @@ contract HousingRental {
         uint amount;
         uint heldAmount;
     }
-    mapping(string=> Listing[]) historicalData;
+    mapping(string => Listing[]) historicalData;
     mapping(uint => Dispute) disputeData;
     mapping(uint => Payment) paymentData;
     mapping(uint => RentDetails) rentData;
@@ -92,8 +92,7 @@ contract HousingRental {
         i_owner = owner;
     }
 
-
-    function createListing(Listing memory newListing,string memory propertyID) public {
+    function createListing(Listing memory newListing, string memory propertyID) public {
         // if (s_listings[newListing.index].landlord == address(0)) {
         //     revert Rental__NotAvailable();
         // }
@@ -106,6 +105,9 @@ contract HousingRental {
         emit ListingCreated(curLen, newListing, msg.sender);
     }
 
+function getOwner() public view returns (address owner) {
+        return i_owner;
+    }
     function createProposal(Proposal memory newProposal) external returns (uint) {
         newProposal.sender = msg.sender;
         proposals[newProposal.listingIndex].push(newProposal);
@@ -117,12 +119,12 @@ contract HousingRental {
         return proposals[index];
     }
 
-// function getHistory(string memory id) external view returns (Listing[] memory) {
-//         return historicalData[id];
-//     }
-    function getUserData() external view returns (UserData memory){
+    // function getHistory(string memory id) external view returns (Listing[] memory) {
+    //         return historicalData[id];
+    //     }
+    function getUserData() external view returns (UserData memory) {
         return userData[msg.sender];
-    } 
+    }
 
     function acceptProposal(
         uint listingIndex,
@@ -142,7 +144,7 @@ contract HousingRental {
         if (s_listings[listingIndex].landlord != msg.sender) {
             revert Rental__SenderNotLandlord();
         }
-        if(proposals[listingIndex][index].rentAmount > rent){
+        if (proposals[listingIndex][index].rentAmount > rent) {
             revert Rental__RentLowerThanProposal();
         }
         RentDetails memory newRent = RentDetails(
@@ -159,9 +161,11 @@ contract HousingRental {
             landlordSign,
             RentalStatus.AWAITING_SIGNATURES
         );
-        userData[msg.sender].activeRentIndices.push(Shortrent(listingIndex,rent));
-        userData[proposals[listingIndex][index].sender].activeTenantIndices.push(Shortrent(listingIndex,rent));
-        userData[middleman].activeResolverIndices.push(Shortrent(listingIndex,rent));
+        userData[msg.sender].activeRentIndices.push(Shortrent(listingIndex, rent));
+        userData[proposals[listingIndex][index].sender].activeTenantIndices.push(
+            Shortrent(listingIndex, rent)
+        );
+        userData[middleman].activeResolverIndices.push(Shortrent(listingIndex, rent));
         delete proposals[listingIndex];
         rentData[listingIndex] = newRent;
     }
@@ -181,14 +185,14 @@ contract HousingRental {
     function signAgreement(uint listingIndex, string memory senderSign) external payable {
         RentDetails memory tempData = rentData[listingIndex];
         if (tempData.tenant == msg.sender) {
-            if (bytes(tempData.resolverSign).length != 0) {
-                revert Rental__NotAvailable();
-            }
+            // if (bytes(tempData.resolverSign).length != 0) {
+            //     revert Rental__NotAvailable();
+            // }
             if (msg.value > tempData.deposit) {
                 payable(msg.sender).transfer(msg.value - tempData.deposit);
                 rentData[listingIndex].tenantSign = senderSign;
             } else if (msg.value < tempData.deposit) {
-                revert Rental__LowDeposit(tempData.deposit);
+                revert Rental__LowDeposit(msg.value);
             } else {
                 rentData[listingIndex].tenantSign = senderSign;
             }
